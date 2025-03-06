@@ -11,9 +11,18 @@ type Props = {
   todos: Todo[];
   dispatch: React.Dispatch<Action>;
   index: number;
+  setCompletedTodos: React.Dispatch<React.SetStateAction<Todo[]>>;
+  completedTodos: Todo[];
 };
 
-const TodoItem = ({ todo, todos, dispatch, index }: Props) => {
+const TodoItem = ({
+  todo,
+  todos,
+  dispatch,
+  index,
+  setCompletedTodos,
+  completedTodos,
+}: Props) => {
   const [edit, setEdit] = useState(false);
   const [editTodo, setEditTodo] = useState<string>(todo.todo);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -23,7 +32,14 @@ const TodoItem = ({ todo, todos, dispatch, index }: Props) => {
   }, [edit]);
 
   const handleDone = (id: number) => {
-    dispatch({ type: "TOGGLE_DONE", payload: id });
+    // dispatch({ type: "TOGGLE_DONE", payload: id });
+    if (!todo.isDone) {
+      setCompletedTodos([...completedTodos, { ...todo, isDone: true }]);
+      dispatch({ type: "DELETE", payload: id });
+    } else {
+      dispatch({ type: "ADD", payload: { ...todo, isDone: false } });
+      setCompletedTodos(completedTodos.filter((todo) => todo.id !== id));
+    }
   };
 
   const handleDelete = (id: number) => {
@@ -63,7 +79,6 @@ const TodoItem = ({ todo, todos, dispatch, index }: Props) => {
               }
             }}
           >
-            HEllo
             <AiFillEdit />
           </span>
           <span className="icon" onClick={() => handleDelete(todo.id)}>
